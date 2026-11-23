@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#07050e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>江潮莹</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="stylesheet" href="atmos.css?v=20">
+</head>
+<body>
+
+<div class="bg" aria-hidden="true"></div>
+<canvas id="fx" aria-hidden="true"></canvas>
+<div class="aurora" aria-hidden="true">
+  <span class="blob b1"></span>
+  <span class="blob b2"></span>
+  <span class="blob b3"></span>
+</div>
+<div class="moon" id="moon" aria-hidden="true"></div>
+<div class="dawn" id="dawn" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="vig" aria-hidden="true"></div>
+<div id="progress" aria-hidden="true"><i></i></div>
+
+<button class="iconbtn" id="gearBtn" aria-label="修改文字">✎</button>
+<button class="iconbtn" id="musicBtn" aria-label="打开声音">♪</button>
+
+<main id="scroll">
+
+  <!-- 1 夜 -->
+  <section class="sec sec-hint">
+    <p class="hint">请 把 声 音 打 开</p>
+    <p class="hint2">然后，慢慢往下滑</p>
+    <div class="scrollDot" aria-hidden="true"><i></i></div>
+  </section>
+
+  <!-- 2 名字 -->
+  <section class="sec sec-name">
+    <p class="kicker reveal">T H I S &nbsp; N I G H T</p>
+    <h1 class="nameText reveal" id="nameText">江潮莹</h1>
+    <p class="caption reveal" id="nameCaption">有些名字，念出来就会变轻</p>
+  </section>
+
+  <!-- 3 江面 -->
+  <section class="sec sec-sea" id="seaSec">
+    <div class="seaText">
+      <p class="kicker reveal">T H E &nbsp; R I V E R</p>
+      <p class="seaQuote reveal" id="seaQuote">风从江面过来，带着一点凉。
+我站在这里，忽然很想你。</p>
+    </div>
+    <canvas id="sea" aria-hidden="true"></canvas>
+  </section>
+
+  <!-- 4 星座 -->
+  <section class="sec sec-star" id="starSec">
+    <p class="kicker reveal">S T A R S</p>
+    <svg id="constel" viewBox="0 0 320 280" aria-hidden="true"></svg>
+    <p class="starQuote reveal" id="starQuote">这些星星本来没有关系，
+是我一颗一颗，连成你的样子。</p>
+  </section>
+
+  <!-- 5 情话 -->
+  <section class="sec sec-sweet" id="sweetSec">
+    <p class="kicker reveal">S A Y &nbsp; I T &nbsp; A G A I N</p>
+    <div class="sweetCard reveal">
+      <p class="sweetLine" id="sweetLine">今晚想对你说一句话</p>
+      <button class="heartBtn" id="sweetBtn" aria-label="换一句">❤</button>
+      <p class="tapTip">每 点 一 次 ，换 一 句</p>
+    </div>
+  </section>
+
+  <!-- 6 时间轴 -->
+  <section class="sec sec-tl" id="tlSec">
+    <p class="kicker reveal">O U R &nbsp; T I M E</p>
+    <ol class="timeline" id="timeline"></ol>
+  </section>
+
+  <!-- 7 天数 -->
+  <section class="sec sec-days" id="daysSec">
+    <p class="kicker reveal">A N D &nbsp; T H E N</p>
+    <p class="daysLabel reveal" id="daysLabel">我 们 已 经 走 过</p>
+    <p class="daysNum reveal" id="daysNum">—</p>
+    <p class="daysSince reveal" id="daysSince"></p>
+  </section>
+
+  <!-- 9 晚安 -->
+  <section class="sec sec-msg" id="msgSec">
+    <p class="kicker reveal">L E A V E &nbsp; A &nbsp; W O R D</p>
+    <p class="msgTitle reveal">看完之后，也留一句给我吧</p>
+    <p class="msgHint reveal" id="msgHint">写完会得到一串回信码，记得发给我</p>
+    <div class="msgBox reveal" id="msgBox">
+      <textarea id="msgInput" maxlength="300" placeholder="想说的话…"></textarea>
+      <button class="btn primary msgSend" id="msgSend">写 好 了</button>
+    </div>
+    <div class="msgBack" id="msgBack">
+      <p class="msgBackTip">把下面这串「回信码」发给对方，<br>他粘贴到后台就能看到你的话。</p>
+      <textarea id="msgCode" readonly></textarea>
+      <button class="ghost" id="copyCode">复 制 回 信 码</button>
+    </div>
+  </section>
+
+
+  <!-- 8 留言 -->
+  <section class="sec sec-end" id="endSec">
+    <div class="heartGlow" aria-hidden="true"></div>
+    <p class="endBig reveal" id="endBig">晚安。</p>
+    <p class="endSub reveal" id="endSub">明天也会是个好天气</p>
+    <p class="sign reveal" id="signText">—— 今天的我，也在想你</p>
+    <p class="stamp reveal" id="stampText"></p>
+    <button class="ghost reveal" id="wishBtn">许 一 个 愿</button>
+    <p class="wishDone" id="wishDone"></p>
+    <button class="ghost quiet reveal" id="topBtn">再回去看一次</button>
+  </section>
+
+
+  <footer class="colophon" aria-hidden="true">
+    <span id="colophonName">江潮莹</span>
+  </footer>
+</main>
+
+
+
+<div id="pin" role="dialog" aria-label="输入密码">
+  <div class="pinBox">
+    <p class="pinTitle">后 台</p>
+    <input id="pinInput" type="password" inputmode="numeric" maxlength="8"
+           autocomplete="off" placeholder="输入密码">
+    <div class="pinRow">
+      <button class="btn" id="pinCancel">取消</button>
+      <button class="btn primary" id="pinOk">进入</button>
+    </div>
+    <p class="pinErr" id="pinErr"></p>
+  </div>
+</div>
+
+<div id="admin" role="dialog" aria-label="后台">
+  <div class="inner">
+    <div class="adminHead">
+      <h2>后台 · 留言</h2>
+      <button class="iconbtn tiny" id="adminClose" aria-label="关闭">×</button>
+    </div>
+    <p class="tip">这台手机上收到的留言。别的手机写的，用下面的回信码导入。</p>
+    <div class="adminList" id="adminList"></div>
+    <label for="codeIn">粘贴回信码</label>
+    <textarea id="codeIn" placeholder="把对方发你的那一串贴进来"></textarea>
+    <div class="row">
+      <button class="btn" id="clearMsgs">清空</button>
+      <button class="btn primary" id="importCode">解析并保存</button>
+    </div>
+    <p class="adminFoot">入口：长按左上角 ✎ 一秒，或在网址后面加 ?admin</p>
+  </div>
+</div>
+
+<div id="edit" role="dialog" aria-label="修改文字">
+  <div class="inner">
+    <h2>换成你们自己的细节</h2>
+    <p class="tip">只保存在这台手机上。改完点「保存」。</p>
+    <label for="fName">名字</label>
+    <input id="fName">
+    <label for="fCap">名字下面那句</label>
+    <input id="fCap">
+    <label for="fSea">江面那一幕的话</label>
+    <textarea id="fSea"></textarea>
+    <label for="fStar">星空那一幕的话</label>
+    <textarea id="fStar"></textarea>
+    <label for="fSweet">情话卡里的句子，一行一句</label>
+    <textarea id="fSweet"></textarea>
+    <label for="fTl">时间轴，一行一段：标题 | 一句话</label>
+    <textarea id="fTl"></textarea>
+    <label for="fSince">在一起的日期（留空就不显示天数）</label>
+    <input id="fSince" type="date">
+    <label for="fEnd">结尾那句</label>
+    <input id="fEnd">
+    <label for="fEndSub">结尾的小字</label>
+    <input id="fEndSub">
+    <label for="fMsgTip">留言下方的小提醒</label>
+    <input id="fMsgTip">
+    <label for="fSign">落款</label>
+    <input id="fSign">
+    <div class="row">
+      <button class="btn" id="resetBtn">恢复默认</button>
+      <button class="btn primary" id="saveBtn">保存</button>
+    </div>
+    <div class="row">
+      <button class="btn wide" id="exportBtn">导出成品（连改动打包成一个网页）</button>
+    </div>
+    <p class="exportTip" id="exportTip"></p>
+  </div>
+</div>
+
+<script src="atmos.js?v=20"></script>
+</body>
+</html>
