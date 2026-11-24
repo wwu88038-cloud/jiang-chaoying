@@ -189,7 +189,7 @@
       <div class="hero-row">
         <div class="hero-art" id="heroArt"></div>
         <div class="hero-copy">
-          <div class="kicker">BLOCK JUMP · v4.4</div>
+          <div class="kicker">BLOCK JUMP · v4.5</div>
           <h1>方块跳跃</h1>
           <p class="sub">你是粉色小肥鱼：点一下跳跃，空中再点二段跳（镜头已拉远）。<br>踩住小怪弹起来；BOSS 关保持距离，躲子弹、捡「反击」轰它。</p>
         </div>
@@ -256,7 +256,8 @@
   // ================= 在线排行配置（Supabase） =================
   var CONFIG = {
     SUPABASE_URL: 'https://gmbxajmnoovqspsifoij.supabase.co',
-    SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdtYnhham1ub292cXNwc2lmb2lqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM5NjIwMDYsImV4cCI6MjA3OTUzODAwNn0.0Y8fS4oOsGnr_i_dsdQOUnE1iFKRSyVHk3r8p-tRvNo'
+    SUPABASE_ANON_KEY: 'sb_publishable_ZJzEwShUIZ9SNUPQGwpJ6A_KPZLsbOh',
+    SUPABASE_LEGACY_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdtYnhham1ub292cXNwc2lmb2lqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU0NjgxOTEsImV4cCI6MjExMTA0NDE5MX0.RDQY5VISLZ-jtx7ePg9SXju2mji5D8OXciGMOEoxnu0'
   };
   var ONLINE = !!(CONFIG.SUPABASE_URL && CONFIG.SUPABASE_ANON_KEY);
 
@@ -590,8 +591,29 @@
   }
 
   // ================= 在线排行 =================
-  function sbHeaders() {
-    return { 'apikey': CONFIG.SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + CONFIG.SUPABASE_ANON_KEY, 'Content-Type': 'application/json' };
+  function sbKeys() {
+    var out = [];
+    if (CONFIG.SUPABASE_ANON_KEY) out.push(CONFIG.SUPABASE_ANON_KEY);
+    if (CONFIG.SUPABASE_LEGACY_KEY) out.push(CONFIG.SUPABASE_LEGACY_KEY);
+    return out;
+  }
+  function sbFetch(path, opts) {
+    opts = opts || {};
+    var keys = sbKeys(), i = 0;
+    function attempt() {
+      var key = keys[i] || '';
+      var headers = {};
+      for (var k in (opts.headers || {})) headers[k] = opts.headers[k];
+      headers['apikey'] = key;
+      if (key.indexOf('eyJ') === 0) headers['Authorization'] = 'Bearer ' + key;
+      var o = { method: opts.method || 'GET', headers: headers };
+      if (opts.body) o.body = opts.body;
+      return fetch(CONFIG.SUPABASE_URL + path, o).then(function (r) {
+        if ((r.status === 401 || r.status === 403) && i < keys.length - 1) { i++; return attempt(); }
+        return r;
+      });
+    }
+    return attempt();
   }
   function submitOnline() {
     if (!ONLINE || typeof fetch !== 'function') return;
@@ -599,8 +621,7 @@
     submitT = time;
     var body = [{ name: playerName || '匿名', score: Math.floor(score), kills: kills, coins: coinsGot, combo: maxCombo }];
     try {
-      var h = sbHeaders(); h['Prefer'] = 'return=minimal';
-      fetch(CONFIG.SUPABASE_URL + '/rest/v1/scores', { method: 'POST', headers: h, body: JSON.stringify(body) })
+      sbFetch('/rest/v1/scores', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }, body: JSON.stringify(body) })
         .then(function (r) { onlineState = (r.status >= 200 && r.status < 300) ? 'ok' : 'error'; },
               function () { onlineState = 'error'; });
     } catch (e) { onlineState = 'error'; }
@@ -609,7 +630,7 @@
     if (!ONLINE || typeof fetch !== 'function') { onlineState = 'off'; renderBoard(); return; }
     onlineState = 'loading'; renderBoard();
     try {
-      fetch(CONFIG.SUPABASE_URL + '/rest/v1/scores?select=name,score,created_at&order=score.desc&limit=20', { headers: sbHeaders() })
+      sbFetch('/rest/v1/scores?select=name,score,created_at&order=score.desc&limit=20')
         .then(function (r) { if (!r.ok) throw new Error('http'); return r.json(); })
         .then(function (rows) { onlineRows = rows || []; onlineState = 'ok'; renderBoard(); })
         .catch(function () { onlineState = 'error'; renderBoard(); });
