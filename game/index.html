@@ -151,6 +151,19 @@
     font-size:18px;background:var(--glass);border:1px solid var(--glass-brd);
     backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
     box-shadow:0 10px 26px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.24)}
+  .hist{margin:12px 0 4px}
+  .htitle{font-size:11px;letter-spacing:.18em;color:var(--dim);margin-bottom:7px}
+  .hist-list{display:flex;flex-direction:column;gap:6px;max-height:132px;overflow:auto;-webkit-overflow-scrolling:touch}
+  .histrow{display:flex;align-items:center;gap:8px;padding:8px 11px;border-radius:12px;
+    background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);font-size:12px}
+  .histrow .res{width:34px;font-weight:800;flex:none}
+  .histrow .res.win{color:var(--mint)}
+  .histrow .res.lose{color:#ff9db0}
+  .histrow .res.draw{color:var(--gold)}
+  .histrow .who{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--dim)}
+  .histrow .num{font-variant-numeric:tabular-nums;font-weight:700}
+  .histrow .tm{font-size:10px;color:rgba(255,255,255,.35);width:66px;text-align:right}
+  .hist-empty{font-size:12px;color:var(--dim);padding:6px 2px}
   .room-players{display:flex;flex-direction:column;gap:8px;margin:12px 0 4px}
   .mprow{display:flex;justify-content:space-between;align-items:center;padding:10px 13px;
     border-radius:14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
@@ -213,7 +226,7 @@
       <div class="hero-row">
         <div class="hero-art" id="heroArt"></div>
         <div class="hero-copy">
-          <div class="kicker">BLOCK JUMP · v5.2</div>
+          <div class="kicker">BLOCK JUMP · v5.3</div>
           <h1>方块跳跃</h1>
           <p class="sub">你是粉色小肥鱼：点一下跳跃，空中再点二段跳（镜头已拉远）。<br>踩住小怪弹起来；BOSS 关保持距离，躲子弹、捡「反击」轰它。</p>
         </div>
@@ -282,6 +295,10 @@
       </div>
       <div id="roomStatus" class="rank">未连接</div>
       <div id="roomPlayers" class="room-players"></div>
+      <div class="hist">
+        <div class="htitle">最近对战</div>
+        <div id="mpHist" class="hist-list"></div>
+      </div>
       <div class="row">
         <button class="btn-primary" id="btnReady">准 备</button>
       </div>
@@ -509,6 +526,40 @@
   try { LB = JSON.parse(lsGet('bj.lb') || '[]') || []; } catch (e) { LB = []; }
   var playerName = lsGet('bj.name') || '';
   var onlineRows = [], onlineState = 'idle', submitT = 0;
+  var MP_HIST = [];
+  try { MP_HIST = JSON.parse(lsGet('bj.mp.hist') || '[]') || []; } catch (e) { MP_HIST = []; }
+  function mpSaveRecord() {
+    if (!mp || !mp.result) return;
+    var mine = mp.result.mine, theirs = mp.result.theirs;
+    var _d = new Date();
+    function _p2(n) { return (n < 10 ? '0' : '') + n; }
+    var rec = {
+      t: _p2(_d.getMonth() + 1) + '-' + _p2(_d.getDate()) + ' ' + _p2(_d.getHours()) + ':' + _p2(_d.getMinutes()),
+      code: mp.code,
+      opp: (mp.opp && mp.opp.name) || '对手',
+      mine: mine, theirs: theirs,
+      r: mine > theirs ? 'win' : (mine < theirs ? 'lose' : 'draw')
+    };
+    MP_HIST.unshift(rec);
+    MP_HIST = MP_HIST.slice(0, 50);
+    lsSet('bj.mp.hist', JSON.stringify(MP_HIST));
+    mpRenderHistory();
+  }
+  function mpRenderHistory() {
+    if (!el.mpHist) return;
+    if (!MP_HIST.length) { el.mpHist.innerHTML = '<div class="hist-empty">还没有对战记录</div>'; return; }
+    var html = '';
+    for (var i = 0; i < MP_HIST.length && i < 20; i++) {
+      var r = MP_HIST[i];
+      var label = r.r === 'win' ? '胜' : (r.r === 'lose' ? '负' : '平');
+      html += '<div class="histrow">' +
+        '<span class="res ' + r.r + '">' + label + '</span>' +
+        '<span class="who">' + esc(r.opp) + ' · 房间 ' + esc(r.code) + '</span>' +
+        '<span class="num">' + r.mine + 'm : ' + r.theirs + 'm</span>' +
+        '<span class="tm">' + esc(r.t) + '</span></div>';
+    }
+    el.mpHist.innerHTML = html;
+  }
 
   // ================= 状态 =================
   var state = 'menu';
@@ -549,7 +600,7 @@
     room: $('room'), roomCode: $('roomCode'), roomStatus: $('roomStatus'), roomPlayers: $('roomPlayers'),
     raceHud: $('raceHud'), raceMeName: $('raceMeName'), raceMeBar: $('raceMeBar'), raceMeDist: $('raceMeDist'),
     raceOppName: $('raceOppName'), raceOppBar: $('raceOppBar'), raceOppDist: $('raceOppDist'),
-    countdown: $('countdown'),
+    countdown: $('countdown'), mpHist: $('mpHist'),
     menu: $('menu'), over: $('over'), board: $('board'), toast: $('toast'),
     overScore: $('overScore'), overCause: $('overCause'), stDist: $('stDist'), stCoin: $('stCoin'),
     stKill: $('stKill'), stCombo: $('stCombo'), newRecord: $('newRecord'), overRank: $('overRank'),
@@ -751,6 +802,7 @@
     if (mp) {
       mp.result = { mine: Math.floor(dist / 10), theirs: mp.opp ? Math.floor((mp.opp.d || 0) / 10) : 0 };
       mpSend(mpMe());
+      mpSaveRecord();
     }
     saveLocalScore();
     submitOnline();
@@ -2028,6 +2080,7 @@
     hide(el.menu); hide(el.over); hide(el.board); show(el.room);
     mpStatus(mp ? ('房间 ' + mp.code) : (ONLINE ? '输入房号，或直接点创建' : '未配置在线服务'));
     if (mp && el.roomCode) el.roomCode.value = mp.code;
+    mpRenderHistory();
     mpRender();
   }
   function mpClose() { hide(el.room); showMenu(); }
@@ -2065,6 +2118,7 @@
       });
       mpStatus('连接中… 房间 ' + code);
       if (el.roomCode) el.roomCode.value = code;
+      mpRenderHistory();
       mpRender();
     });
   }
@@ -2202,7 +2256,7 @@
     mp: {
       open: mpOpen, join: mpJoin, msg: mpOnMsg, ready: mpReady, leave: mpLeave,
       status: mpStatus, get: function () { return mp; }, set: function (v) { mp = v; },
-      ghost: drawGhost, hud: updateRaceHud
+      ghost: drawGhost, hud: updateRaceHud, hist: function () { return MP_HIST; }, renderHist: mpRenderHistory
     }
   };
 
