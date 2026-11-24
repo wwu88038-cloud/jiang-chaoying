@@ -188,6 +188,22 @@
     font-size:96px;font-weight:900;color:#fff;z-index:6;pointer-events:none;
     text-shadow:0 10px 40px rgba(255,77,141,.6)}
   #countdown.hidden{display:none}
+  .dur-row{display:flex;gap:8px;margin:6px 0 2px}
+  .dur{flex:1;padding:10px 0;border-radius:13px;font-size:13px;font-weight:700;
+    background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);color:var(--dim)}
+  .dur.on{background:rgba(255,255,255,.16);color:var(--ink);border-color:rgba(255,255,255,.3)}
+  #homeBtn{position:absolute;left:14px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:6;
+    width:44px;height:44px;border-radius:15px;display:flex;align-items:center;justify-content:center;
+    font-size:20px;font-weight:800;background:var(--glass);border:1px solid var(--glass-brd);
+    backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);color:var(--ink);
+    box-shadow:0 10px 26px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.24)}
+  #homeBtn.hidden{display:none}
+  #raceTimer{position:absolute;left:50%;top:calc(52px + env(safe-area-inset-top));transform:translateX(-50%);
+    padding:6px 14px;border-radius:999px;font-size:15px;font-weight:800;letter-spacing:.04em;
+    background:rgba(12,16,30,.6);border:1px solid rgba(255,255,255,.2);
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    font-variant-numeric:tabular-nums;color:var(--ink);display:none;z-index:4}
+  #raceTimer.on{display:block}
   #toast{position:absolute;left:50%;bottom:calc(88px + env(safe-area-inset-bottom));
     transform:translateX(-50%) translateY(8px);padding:11px 20px;border-radius:999px;
     font-size:14px;font-weight:700;color:#fff;white-space:nowrap;
@@ -218,6 +234,7 @@
     </div>
   </div>
 
+  <button id="homeBtn" class="hidden" aria-label="返回主页">⌂</button>
   <button id="soundBtn" aria-label="声音">🔊</button>
   <div id="toast"></div>
 
@@ -226,7 +243,7 @@
       <div class="hero-row">
         <div class="hero-art" id="heroArt"></div>
         <div class="hero-copy">
-          <div class="kicker">BLOCK JUMP · v5.3</div>
+          <div class="kicker">BLOCK JUMP · v5.4</div>
           <h1>方块跳跃</h1>
           <p class="sub">你是粉色小肥鱼：点一下跳跃，空中再点二段跳（镜头已拉远）。<br>踩住小怪弹起来；BOSS 关保持距离，躲子弹、捡「反击」轰它。</p>
         </div>
@@ -274,6 +291,7 @@
     </div>
   </div>
 
+  <div id="raceTimer">00:00</div>
   <div id="raceHud" class="hidden">
     <div class="raceline"><span class="rname" id="raceMeName">你</span><span class="rbar"><i id="raceMeBar"></i></span><span class="rdist" id="raceMeDist">0m</span></div>
     <div class="raceline opp"><span class="rname" id="raceOppName">对手</span><span class="rbar"><i id="raceOppBar"></i></span><span class="rdist" id="raceOppDist">0m</span></div>
@@ -288,6 +306,13 @@
       <div class="namerow" style="margin-top:14px">
         <span class="nlbl">房号</span>
         <input id="roomCode" maxlength="4" autocomplete="off" autocapitalize="characters" placeholder="4 位房号">
+      </div>
+      <div class="htitle" style="margin-top:14px">对决时长（队长选）</div>
+      <div class="dur-row" id="durRow">
+        <button class="dur" data-dur="60">60 秒</button>
+        <button class="dur" data-dur="90">90 秒</button>
+        <button class="dur on" data-dur="120">120 秒</button>
+        <button class="dur" data-dur="0">不限时</button>
       </div>
       <div class="row">
         <button class="btn-ghost btn-sm" id="btnCreateRoom" style="flex:1">创建房间</button>
@@ -600,7 +625,7 @@
     room: $('room'), roomCode: $('roomCode'), roomStatus: $('roomStatus'), roomPlayers: $('roomPlayers'),
     raceHud: $('raceHud'), raceMeName: $('raceMeName'), raceMeBar: $('raceMeBar'), raceMeDist: $('raceMeDist'),
     raceOppName: $('raceOppName'), raceOppBar: $('raceOppBar'), raceOppDist: $('raceOppDist'),
-    countdown: $('countdown'), mpHist: $('mpHist'),
+    countdown: $('countdown'), mpHist: $('mpHist'), raceTimer: $('raceTimer'), homeBtn: $('homeBtn'), durRow: $('durRow'),
     menu: $('menu'), over: $('over'), board: $('board'), toast: $('toast'),
     overScore: $('overScore'), overCause: $('overCause'), stDist: $('stDist'), stCoin: $('stCoin'),
     stKill: $('stKill'), stCombo: $('stCombo'), newRecord: $('newRecord'), overRank: $('overRank'),
@@ -665,12 +690,15 @@
 
   function showMenu() {
     state = 'menu';
+    if (el.homeBtn) el.homeBtn.classList.add('hidden');
+    if (el.raceTimer) el.raceTimer.classList.remove('on');
     if (el.raceHud) el.raceHud.classList.add('hidden');
     hide(el.over); hide(el.board); hide(el.hud); show(el.menu);
     el.menuBest.textContent = best;
   }
   function showOver() {
     state = 'over';
+    if (el.homeBtn) el.homeBtn.classList.remove('hidden');
     hide(el.menu); hide(el.board); hide(el.hud); show(el.over);
     el.overScore.textContent = Math.floor(score);
     var map = { fall: '掉进了深渊', mob: '被小怪撞飞了', hit: '撞在了障碍上', boss: '被 BOSS 撞飞了', fire: '被 BOSS 火球击中' };
@@ -719,8 +747,14 @@
     MULTI = !!(opts && opts.seed != null);
     if (MULTI) { MAP_SEED = opts.seed >>> 0; RND = mulberry32(MAP_SEED); }
     else { MAP_SEED = 0; RND = Math.random; }
+    if (mp) {
+      mp.duration = opts && opts.duration != null ? opts.duration : (mp.duration || MP_DUR);
+      mp.endAt = mp.duration > 0 ? Date.now() + mp.duration * 1000 : 0;
+      mp.myFinal = null;
+    }
     musicStep = 0; musicNext = 0;
     hide(el.menu); hide(el.over); hide(el.board); hide(el.room); hide(el.countdown); show(el.hud);
+    if (el.homeBtn) el.homeBtn.classList.remove('hidden');
     syncHud(true);
     beep(660, 0.08, 'sine', 0.05);
   }
@@ -801,7 +835,7 @@
     lsSet('bj.best', String(best));
     if (mp) {
       mp.result = { mine: Math.floor(dist / 10), theirs: mp.opp ? Math.floor((mp.opp.d || 0) / 10) : 0 };
-      mpSend(mpMe());
+      mpSend({ t: 's', id: mp.id, name: mp.name, d: Math.floor(dist), gy: 0, alive: 0, sc: Math.floor(score), fin: 1 });
       mpSaveRecord();
     }
     saveLocalScore();
@@ -993,6 +1027,7 @@
     if (slow > 0) slow = Math.max(0, slow - dt);
     if (magnet > 0) magnet = Math.max(0, magnet - dt);
     if (dbl > 0) dbl = Math.max(0, dbl - dt);
+    if (mp && mp.endAt && Date.now() >= mp.endAt) { die('time'); return; }
     if (!MULTI && !boss && dist >= nextBossDist) spawnBoss();
 
     // 竖直
@@ -1992,7 +2027,7 @@
         if (leftMs <= 0) {
           mp.startAt = 0;
           if (el.countdown) el.countdown.classList.add('hidden');
-          start({ seed: mp.seed });
+          start({ seed: mp.seed, duration: mp.duration || MP_DUR });
         }
       }
       if (state === 'play') {
@@ -2019,6 +2054,7 @@
 
   // ================= 联机竞速（Supabase Realtime） =================
   var mp = null, mpClient = null, mpLoading = false, mpSending = 0;
+  var MP_DUR = 120;
 
   function mpEnsure() {
     if (mpClient) return Promise.resolve(mpClient);
@@ -2073,6 +2109,17 @@
     el.raceOppName.textContent = (mp.opp && mp.opp.name) || '对手';
     el.raceMeDist.textContent = myD + 'm';
     el.raceOppDist.textContent = mp.opp ? (opD + 'm') : '—';
+    if (el.raceTimer) {
+      if (mp.endAt) {
+        var leftMs2 = Math.max(0, mp.endAt - Date.now());
+        var mm2 = Math.floor(leftMs2 / 60000), ss2 = Math.floor(leftMs2 % 60000 / 1000);
+        el.raceTimer.textContent = (mm2 < 10 ? '0' : '') + mm2 + ':' + (ss2 < 10 ? '0' : '') + ss2;
+        el.raceTimer.classList.add('on');
+      } else {
+        el.raceTimer.textContent = '不限时';
+        el.raceTimer.classList.add('on');
+      }
+    }
     el.raceMeBar.style.width = Math.min(100, myD / mx * 100) + '%';
     el.raceOppBar.style.width = Math.min(100, opD / mx * 100) + '%';
   }
@@ -2134,16 +2181,27 @@
     if (m.t === 'ready') { mp.oppReady = !!m.ready; mpRender(); maybeStart(); return; }
     if (m.t === 's') {
       mp.opp = { id: m.id, name: m.name, d: m.d | 0, gy: m.gy | 0, alive: !!m.alive, sc: m.sc | 0, ts: Date.now() };
+      if (m.fin && mp.result && state === 'over') {
+        mp.result.theirs = Math.floor((m.d | 0) / 10);
+        updateRaceHud();
+        if (el.overRank) {
+          var mine2 = mp.result.mine, th2 = mp.result.theirs;
+          el.overRank.textContent = '对手 ' + th2 + 'm · 你 ' + mine2 + 'm —— ' +
+            (mine2 > th2 ? '你赢了' : (mine2 < th2 ? '差 ' + (th2 - mine2) + 'm' : '平局'));
+        }
+      }
       updateRaceHud();
       return;
     }
     if (m.t === 'st') {
+      mp.duration = (m.dur == null ? MP_DUR : m.dur) | 0;
       mp.seed = m.seed >>> 0;
       var wait = (m.at | 0) - Date.now();
       mp.startAt = Date.now() + Math.max(800, Math.min(6000, wait));
       mpStatus('准备开始…');
       return;
     }
+    if (m.t === 'dur') { if (mp) mp.duration = m.d | 0; MP_DUR = m.d | 0; if (el.durRow) { var kk = el.durRow.children || []; for (var i2 = 0; i2 < kk.length; i2++) { kk[i2].classList.toggle('on', Number(kk[i2].getAttribute('data-dur')) === MP_DUR); } } mpStatus('队长选了 ' + (MP_DUR ? MP_DUR + ' 秒' : '不限时')); return; }
     if (m.t === 'bye') { mp.opp = null; mp.oppReady = false; mpStatus('对手离开了'); mpRender(); return; }
   }
   function maybeStart() {
@@ -2151,8 +2209,22 @@
     var seed = (Math.random() * 0xFFFFFFF) | 0;
     var at = Date.now() + 3200;
     mp.seed = seed; mp.startAt = at;
-    mpSend({ t: 'st', seed: seed, at: at });
+    mpSend({ t: 'st', seed: seed, at: at, dur: mp.duration || MP_DUR });
     mpStatus('双方就绪，3 秒后开始');
+  }
+  function mpSetDur(sec) {
+    MP_DUR = sec;
+    if (mp) {
+      mp.duration = sec;
+      if (mp.host) mpSend({ t: 'dur', d: sec });
+    }
+    if (el.durRow) {
+      var kids = el.durRow.children || [];
+      for (var i = 0; i < kids.length; i++) {
+        var d = kids[i].getAttribute ? Number(kids[i].getAttribute('data-dur')) : NaN;
+        kids[i].classList.toggle('on', d === sec);
+      }
+    }
   }
   function mpReady() {
     if (!mp) { toast('先创建或加入房间'); return; }
@@ -2212,6 +2284,21 @@
   bind('btnJoinRoom', function () { mpJoin(el.roomCode ? el.roomCode.value : '', false); });
   bind('btnReady', function () { mpReady(); });
   bind('btnLeaveRoom', function () { mpLeave(); });
+  if (el.homeBtn && el.homeBtn.addEventListener) {
+    el.homeBtn.addEventListener('click', function (ev) {
+      if (ev && ev.stopPropagation) ev.stopPropagation();
+      if (mp) { mpLeave(); return; }
+      showMenu();
+    });
+  }
+  if (el.durRow && el.durRow.addEventListener) {
+    el.durRow.addEventListener('click', function (ev) {
+      var t = ev && ev.target;
+      var d = t && t.getAttribute ? t.getAttribute('data-dur') : null;
+      if (d == null) return;
+      mpSetDur(Number(d));
+    });
+  }
   bind('btnBoardClose', function () { hideBoard(); });
   bind('btnMenuSound', function () {
     soundOn = !soundOn;
@@ -2256,7 +2343,8 @@
     mp: {
       open: mpOpen, join: mpJoin, msg: mpOnMsg, ready: mpReady, leave: mpLeave,
       status: mpStatus, get: function () { return mp; }, set: function (v) { mp = v; },
-      ghost: drawGhost, hud: updateRaceHud, hist: function () { return MP_HIST; }, renderHist: mpRenderHistory
+      ghost: drawGhost, hud: updateRaceHud, hist: function () { return MP_HIST; }, renderHist: mpRenderHistory,
+      setDur: mpSetDur, dur: function () { return MP_DUR; }
     }
   };
 
