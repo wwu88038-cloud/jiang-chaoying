@@ -213,7 +213,7 @@
       <div class="hero-row">
         <div class="hero-art" id="heroArt"></div>
         <div class="hero-copy">
-          <div class="kicker">BLOCK JUMP · v5.0</div>
+          <div class="kicker">BLOCK JUMP · v5.2</div>
           <h1>方块跳跃</h1>
           <p class="sub">你是粉色小肥鱼：点一下跳跃，空中再点二段跳（镜头已拉远）。<br>踩住小怪弹起来；BOSS 关保持距离，躲子弹、捡「反击」轰它。</p>
         </div>
@@ -669,7 +669,7 @@
     if (MULTI) { MAP_SEED = opts.seed >>> 0; RND = mulberry32(MAP_SEED); }
     else { MAP_SEED = 0; RND = Math.random; }
     musicStep = 0; musicNext = 0;
-    hide(el.menu); hide(el.over); hide(el.board); show(el.hud);
+    hide(el.menu); hide(el.over); hide(el.board); hide(el.room); hide(el.countdown); show(el.hud);
     syncHud(true);
     beep(660, 0.08, 'sine', 0.05);
   }
@@ -1929,6 +1929,7 @@
     var dt = last ? Math.min(0.05, (t - last) / 1000) : 0.016;
     last = t;
     if (mp) {
+      if (mp.host && mp.ready && mp.oppReady && !mp.startAt && state !== 'play') maybeStart();
       if (mp.opp && Date.now() - mp.opp.ts > 3000) mp.opp.alive = false;
       if (mp.startAt && state !== 'play') {
         var leftMs = mp.startAt - Date.now();
@@ -2082,7 +2083,13 @@
       updateRaceHud();
       return;
     }
-    if (m.t === 'st') { mp.seed = m.seed >>> 0; mp.startAt = m.at | 0; mpStatus('准备开始…'); return; }
+    if (m.t === 'st') {
+      mp.seed = m.seed >>> 0;
+      var wait = (m.at | 0) - Date.now();
+      mp.startAt = Date.now() + Math.max(800, Math.min(6000, wait));
+      mpStatus('准备开始…');
+      return;
+    }
     if (m.t === 'bye') { mp.opp = null; mp.oppReady = false; mpStatus('对手离开了'); mpRender(); return; }
   }
   function maybeStart() {
@@ -2098,7 +2105,10 @@
     mp.ready = !mp.ready;
     mpSend({ t: 'ready', id: mp.id, ready: mp.ready, name: mp.name });
     mpRender();
-    if (mp.ready) { mpStatus('等待对手准备…'); maybeStart(); }
+    if (mp.ready) {
+      mpStatus(mp.oppReady ? '双方就绪，马上开始…' : '已准备，等待对手…');
+      maybeStart();
+    }
     else mpStatus('已取消准备');
   }
   function drawGhost() {
@@ -2130,7 +2140,14 @@
   }
   bind('btnStart', function () { start(); });
   bind('btnRetry', function () {
-    if (mp) { mpLeave(); toast('已退出房间'); }
+    if (mp) {
+      mp.result = null; mp.startAt = 0; mp.ready = false;
+      mpSend({ t: 'ready', id: mp.id, ready: false, name: mp.name });
+      hide(el.over); hide(el.raceHud); show(el.room);
+      mpStatus('点「准备」再来一局');
+      mpRender();
+      return;
+    }
     start();
   });
   bind('btnShare', function () { shareScore(); });
