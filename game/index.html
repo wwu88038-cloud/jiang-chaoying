@@ -151,6 +151,30 @@
     font-size:18px;background:var(--glass);border:1px solid var(--glass-brd);
     backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
     box-shadow:0 10px 26px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.24)}
+  .room-players{display:flex;flex-direction:column;gap:8px;margin:12px 0 4px}
+  .mprow{display:flex;justify-content:space-between;align-items:center;padding:10px 13px;
+    border-radius:14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
+    font-size:14px;font-weight:700}
+  .mprow.dim{color:var(--dim);font-weight:600}
+  .mprow.me{background:rgba(255,255,255,.12)}
+  .mprow b{font-weight:800;color:var(--mint);font-size:12px}
+  #raceHud{position:absolute;left:50%;top:calc(84px + env(safe-area-inset-top));transform:translateX(-50%);
+    width:min(300px,72%);display:flex;flex-direction:column;gap:6px;z-index:4;pointer-events:none}
+  #raceHud.hidden{display:none}
+  .raceline{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:12px;
+    background:rgba(12,16,30,.55);border:1px solid rgba(255,255,255,.16);
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);font-size:11px;font-weight:700}
+  .raceline.opp{opacity:.85}
+  .raceline .rname{width:52px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--dim)}
+  .raceline .rbar{flex:1;height:5px;border-radius:99px;background:rgba(255,255,255,.14);overflow:hidden}
+  .raceline .rbar i{display:block;height:100%;width:0%;border-radius:99px;
+    background:linear-gradient(90deg,#ff8dc0,#ff4d8d)}
+  .raceline.opp .rbar i{background:linear-gradient(90deg,#7ee7ff,#4f9dff)}
+  .raceline .rdist{width:46px;text-align:right;font-variant-numeric:tabular-nums}
+  #countdown{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);
+    font-size:96px;font-weight:900;color:#fff;z-index:6;pointer-events:none;
+    text-shadow:0 10px 40px rgba(255,77,141,.6)}
+  #countdown.hidden{display:none}
   #toast{position:absolute;left:50%;bottom:calc(88px + env(safe-area-inset-bottom));
     transform:translateX(-50%) translateY(8px);padding:11px 20px;border-radius:999px;
     font-size:14px;font-weight:700;color:#fff;white-space:nowrap;
@@ -189,7 +213,7 @@
       <div class="hero-row">
         <div class="hero-art" id="heroArt"></div>
         <div class="hero-copy">
-          <div class="kicker">BLOCK JUMP · v4.5</div>
+          <div class="kicker">BLOCK JUMP · v5.0</div>
           <h1>方块跳跃</h1>
           <p class="sub">你是粉色小肥鱼：点一下跳跃，空中再点二段跳（镜头已拉远）。<br>踩住小怪弹起来；BOSS 关保持距离，躲子弹、捡「反击」轰它。</p>
         </div>
@@ -198,6 +222,7 @@
         <span class="chip"><span class="dot" style="color:#ff6b8b"></span><b>3 种小怪</b> 可踩</span>
         <span class="chip"><span class="dot" style="color:#ffd166"></span><b>5 种道具</b> 无敌/磁铁/双倍/护盾/缓速</span>
         <span class="chip"><span class="dot" style="color:#a78bfa"></span><b>BOSS 战</b> 躲子弹捡反击</span>
+        <span class="chip"><span class="dot" style="color:#43e8b8"></span><b>联机竞速</b> 房号对战</span>
       </div>
       <div class="namerow">
         <span class="nlbl">昵称</span>
@@ -208,6 +233,7 @@
         <button class="btn-primary" id="btnStart">开始游戏</button>
       </div>
       <div class="row">
+        <button class="btn-ghost btn-sm" id="btnMenuMp" style="flex:1">联机竞速</button>
         <button class="btn-ghost btn-sm" id="btnMenuBoard" style="flex:1">排行榜</button>
         <button class="btn-ghost btn-sm" id="btnMenuSound" style="flex:1">音效</button>
       </div>
@@ -231,6 +257,36 @@
       <div class="row">
         <button class="btn-ghost btn-sm" id="btnShare" style="flex:1">分享</button>
         <button class="btn-ghost btn-sm" id="btnBoard" style="flex:1">排行榜</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="raceHud" class="hidden">
+    <div class="raceline"><span class="rname" id="raceMeName">你</span><span class="rbar"><i id="raceMeBar"></i></span><span class="rdist" id="raceMeDist">0m</span></div>
+    <div class="raceline opp"><span class="rname" id="raceOppName">对手</span><span class="rbar"><i id="raceOppBar"></i></span><span class="rdist" id="raceOppDist">0m</span></div>
+  </div>
+  <div id="countdown" class="hidden">3</div>
+
+  <div id="room" class="veil hidden">
+    <div class="panel">
+      <div class="kicker">RACE ROOM</div>
+      <h1 style="font-size:26px">联机竞速</h1>
+      <p class="sub">创建房间，把 4 位房号发给朋友；双方看到同一张地图，比谁跑得远。</p>
+      <div class="namerow" style="margin-top:14px">
+        <span class="nlbl">房号</span>
+        <input id="roomCode" maxlength="4" autocomplete="off" autocapitalize="characters" placeholder="4 位房号">
+      </div>
+      <div class="row">
+        <button class="btn-ghost btn-sm" id="btnCreateRoom" style="flex:1">创建房间</button>
+        <button class="btn-ghost btn-sm" id="btnJoinRoom" style="flex:1">加入房间</button>
+      </div>
+      <div id="roomStatus" class="rank">未连接</div>
+      <div id="roomPlayers" class="room-players"></div>
+      <div class="row">
+        <button class="btn-primary" id="btnReady">准 备</button>
+      </div>
+      <div class="row">
+        <button class="btn-ghost btn-sm" id="btnLeaveRoom" style="flex:1">离开房间</button>
       </div>
     </div>
   </div>
@@ -304,7 +360,7 @@
   // ================= 画面尺寸 =================
   var W = 527, H = 865, GROUND = 702, PX = 92, PS = 42;
   var GRAV = 3300, JUMP = -1160, JUMP2 = -1040, CUT = -500, STOMP_BOUNCE = -880;
-  var BOSS_FIRST = 700, BOSS_GAP = 1700;
+  var BOSS_FIRST_DIST = 7000, BOSS_GAP_DIST = 15000;
 
   var cvs = document.getElementById('game');
   var ctx = cvs.getContext('2d');
@@ -462,7 +518,21 @@
   var gaps = [], obs = [], mobs = [], projs = [], rockets = [], pickups = [], coinList = [], parts = [], texts = [], rings = [], trail = [];
   var stars = [];
   var inv = 0, magnet = 0, dbl = 0, shield = 0, slow = 0;
-  var boss = null, nextBossAt = BOSS_FIRST, arena = false;
+  var boss = null, nextBossDist = BOSS_FIRST_DIST, arena = false;
+  var RND = Math.random, MULTI = false, MAP_SEED = 0;
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      var t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  function hashSeed(str) {
+    var h = 2166136261;
+    for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return h >>> 0;
+  }
   var overAt = 0, toastT = 0, deadReason = '';
   var worldT = 0, auroraT = 0;
   var p = { y: GROUND, vy: 0, jumps: 0, rot: 0, squash: 1, onGround: true, spin: 0 };
@@ -476,6 +546,10 @@
     combo: $('comboChip'), bossWrap: $('bossWrap'), bossFill: $('bossFill'),
     pwStar: $('pwStar'), pwMag: $('pwMag'), pwDbl: $('pwDbl'),
     pwShield: $('pwShield'), pwSlow: $('pwSlow'), nameInput: $('nameInput'),
+    room: $('room'), roomCode: $('roomCode'), roomStatus: $('roomStatus'), roomPlayers: $('roomPlayers'),
+    raceHud: $('raceHud'), raceMeName: $('raceMeName'), raceMeBar: $('raceMeBar'), raceMeDist: $('raceMeDist'),
+    raceOppName: $('raceOppName'), raceOppBar: $('raceOppBar'), raceOppDist: $('raceOppDist'),
+    countdown: $('countdown'),
     menu: $('menu'), over: $('over'), board: $('board'), toast: $('toast'),
     overScore: $('overScore'), overCause: $('overCause'), stDist: $('stDist'), stCoin: $('stCoin'),
     stKill: $('stKill'), stCombo: $('stCombo'), newRecord: $('newRecord'), overRank: $('overRank'),
@@ -540,6 +614,7 @@
 
   function showMenu() {
     state = 'menu';
+    if (el.raceHud) el.raceHud.classList.add('hidden');
     hide(el.over); hide(el.board); hide(el.hud); show(el.menu);
     el.menuBest.textContent = best;
   }
@@ -553,7 +628,13 @@
     el.stCoin.textContent = coinsGot;
     el.stKill.textContent = kills;
     el.stCombo.textContent = '×' + maxCombo;
-    el.overRank.textContent = thisRank > 0 ? ('本机排行第 ' + thisRank + ' 名') : ('最高分 ' + best);
+    var rankTxt = thisRank > 0 ? ('本机排行第 ' + thisRank + ' 名') : ('最高分 ' + best);
+    if (mp && mp.result) {
+      var mine = mp.result.mine, theirs = mp.result.theirs;
+      rankTxt = '对手 ' + theirs + 'm · 你 ' + mine + 'm —— ' +
+        (mine > theirs ? '你赢了' : (mine < theirs ? '差 ' + (theirs - mine) + 'm' : '平局'));
+    }
+    el.overRank.textContent = rankTxt;
     if (score > prevBest && score > 0) show(el.newRecord); else hide(el.newRecord);
   }
   function showBoard(from) {
@@ -576,14 +657,17 @@
     gaps = []; obs = []; mobs = []; projs = []; rockets = []; pickups = []; coinList = [];
     parts = []; texts = []; rings = []; trail = [];
     inv = 0; magnet = 0; dbl = 0; shield = 0; slow = 0;
-    boss = null; nextBossAt = BOSS_FIRST; arena = false;
+    boss = null; nextBossDist = BOSS_FIRST_DIST; arena = false;
     deadReason = ''; thisRank = 0; highlightScore = -1;
     worldT = 0; auroraT = 0;
     p = { y: GROUND, vy: 0, jumps: 0, rot: 0, squash: 1, onGround: true, spin: 0 };
   }
-  function start() {
+  function start(opts) {
     applyName(el.nameInput ? el.nameInput.value : playerName);
     reset(); prevBest = best; state = 'play';
+    MULTI = !!(opts && opts.seed != null);
+    if (MULTI) { MAP_SEED = opts.seed >>> 0; RND = mulberry32(MAP_SEED); }
+    else { MAP_SEED = 0; RND = Math.random; }
     musicStep = 0; musicNext = 0;
     hide(el.menu); hide(el.over); hide(el.board); show(el.hud);
     syncHud(true);
@@ -664,6 +748,10 @@
     ringFx(PX + PS / 2, p.y - PS / 2, 'rgba(255,255,255,.85)');
     if (score > best) best = score;
     lsSet('bj.best', String(best));
+    if (mp) {
+      mp.result = { mine: Math.floor(dist / 10), theirs: mp.opp ? Math.floor((mp.opp.d || 0) / 10) : 0 };
+      mpSend(mpMe());
+    }
     saveLocalScore();
     submitOnline();
     setTimeout(function () { showOver(); }, 620);
@@ -696,42 +784,42 @@
   function spawnAhead() {
     if (boss) return;
     var edge = camX + W + 220;
-    var lvl = Math.min(1, score / 1200);
+    var lvl = Math.min(1, nextX / 14000);
     var baseGap = Math.max(230, speed * 0.95);
     var guard = 0;
     while (nextX < edge && guard++ < 24) {
-      var r = Math.random();
+      var r = RND();
       if (r < 0.2 && score > 160) {
-        var gw = 52 + Math.random() * (22 + lvl * 34);
+        var gw = 52 + RND() * (22 + lvl * 34);
         gaps.push({ x: nextX, w: gw });
-        nextX += gw + baseGap + Math.random() * 80;
+        nextX += gw + baseGap + RND() * 80;
       } else if (r < 0.36) {
-        var big = Math.random() < 0.3 + lvl * 0.15;
-        var tall = big && Math.random() < 0.6, wide = big && !tall;
+        var big = RND() < 0.3 + lvl * 0.15;
+        var tall = big && RND() < 0.6, wide = big && !tall;
         var h = tall ? 54 : 27, w = wide ? 54 : 27;
-        obs.push({ x: nextX, y: GROUND - h, w: w, h: h, kind: Math.random() < 0.5 ? 'stone' : 'crate' });
-        nextX += w + baseGap + Math.random() * 80;
+        obs.push({ x: nextX, y: GROUND - h, w: w, h: h, kind: RND() < 0.5 ? 'stone' : 'crate' });
+        nextX += w + baseGap + RND() * 80;
       } else if (r < 0.64) {
-        var roll = Math.random();
+        var roll = RND();
         var kind = roll < 0.45 ? 'slime' : (roll < 0.82 ? 'walker' : 'flyer');
         if (kind === 'flyer') {
-          mobs.push({ kind: 'flyer', x: nextX, baseY: GROUND - 120 - Math.random() * 24, w: 28, h: 22, t: Math.random() * 6, phase: Math.random() * 6, vx: 0, dead: false, deadT: 0 });
-          nextX += 90 + baseGap * 1.05 + Math.random() * 60;
+          mobs.push({ kind: 'flyer', x: nextX, baseY: GROUND - 120 - RND() * 24, w: 28, h: 22, t: RND() * 6, phase: RND() * 6, vx: 0, dead: false, deadT: 0 });
+          nextX += 90 + baseGap * 1.05 + RND() * 60;
         } else {
-          mobs.push({ kind: kind, x: nextX, baseY: GROUND, w: kind === 'slime' ? 26 : 28, h: kind === 'slime' ? 24 : 28, t: Math.random() * 6, phase: Math.random() * 6, vx: kind === 'walker' ? -(0.3 + Math.random() * 0.26) : 0, dead: false, deadT: 0 });
-          nextX += (kind === 'walker' ? 150 : 40) + baseGap + Math.random() * 80;
+          mobs.push({ kind: kind, x: nextX, baseY: GROUND, w: kind === 'slime' ? 26 : 28, h: kind === 'slime' ? 24 : 28, t: RND() * 6, phase: RND() * 6, vx: kind === 'walker' ? -(0.3 + RND() * 0.26) : 0, dead: false, deadT: 0 });
+          nextX += (kind === 'walker' ? 150 : 40) + baseGap + RND() * 80;
         }
       } else if (r < 0.73) {
         var kinds = ['star', 'magnet', 'dbl', 'shield', 'slow'];
-        pickups.push({ x: nextX, y: GROUND - 86 - Math.random() * 30, kind: kinds[Math.floor(Math.random() * kinds.length)], t: Math.random() * 6, got: false });
-        nextX += 100 + baseGap * 0.75 + Math.random() * 60;
+        pickups.push({ x: nextX, y: GROUND - 86 - RND() * 30, kind: kinds[Math.floor(RND() * kinds.length)], t: RND() * 6, got: false });
+        nextX += 100 + baseGap * 0.75 + RND() * 60;
       } else {
-        var n = 3 + Math.floor(Math.random() * 3);
+        var n = 3 + Math.floor(RND() * 3);
         for (var i = 0; i < n; i++) {
           var t2 = (i + 1) / (n + 1);
           coinList.push({ x: nextX + i * 26, y: GROUND - 42 - Math.sin(t2 * Math.PI) * 52, got: false });
         }
-        nextX += n * 26 + baseGap * 0.8 + Math.random() * 60;
+        nextX += n * 26 + baseGap * 0.8 + RND() * 60;
       }
     }
     var cut = camX - 200;
@@ -853,7 +941,7 @@
     if (slow > 0) slow = Math.max(0, slow - dt);
     if (magnet > 0) magnet = Math.max(0, magnet - dt);
     if (dbl > 0) dbl = Math.max(0, dbl - dt);
-    if (!boss && score >= nextBossAt) spawnBoss();
+    if (!MULTI && !boss && dist >= nextBossDist) spawnBoss();
 
     // 竖直
     var oldY = p.y;
@@ -949,7 +1037,7 @@
         B.dying -= dt;
         if (B.dying <= 0) {
           boss = null; arena = false;
-          nextBossAt = score + BOSS_GAP;
+          nextBossDist = dist + BOSS_GAP_DIST;
           nextX = camX + W + 240;
           projs = []; pickups = []; rockets = [];
           addBonus(500);
@@ -1149,6 +1237,7 @@
     }
     pw(el.pwStar, inv, 6); pw(el.pwMag, magnet, 8); pw(el.pwDbl, dbl, 10);
     pw(el.pwShield, shield, 1); pw(el.pwSlow, slow, 6);
+    if (mp) updateRaceHud();
     if (el.bossWrap) {
       if (boss && !boss.dying) {
         el.bossWrap.classList.add('on');
@@ -1822,6 +1911,7 @@
     drawProjs();
     drawRockets();
     drawTrail();
+    drawGhost();
     drawPlayer();
     drawParticles();
     drawRings();
@@ -1838,6 +1928,26 @@
   function frame(t) {
     var dt = last ? Math.min(0.05, (t - last) / 1000) : 0.016;
     last = t;
+    if (mp) {
+      if (mp.opp && Date.now() - mp.opp.ts > 3000) mp.opp.alive = false;
+      if (mp.startAt && state !== 'play') {
+        var leftMs = mp.startAt - Date.now();
+        if (el.countdown) {
+          el.countdown.classList.remove('hidden');
+          el.countdown.textContent = leftMs > 0 ? String(Math.ceil(leftMs / 1000)) : 'GO';
+        }
+        if (leftMs <= 0) {
+          mp.startAt = 0;
+          if (el.countdown) el.countdown.classList.add('hidden');
+          start({ seed: mp.seed });
+        }
+      }
+      if (state === 'play') {
+        mpSending += dt;
+        if (mpSending > 0.12) { mpSending = 0; mpSend(mpMe()); }
+      }
+      updateRaceHud();
+    }
     if (freeze > 0) {
       freeze = Math.max(0, freeze - dt);
       if (shake > 0) shake = Math.max(0, shake - dt * 34);
@@ -1853,6 +1963,165 @@
   }
   window.addEventListener('resize', function () { fitCanvas(); });
 
+
+  // ================= 联机竞速（Supabase Realtime） =================
+  var mp = null, mpClient = null, mpLoading = false, mpSending = 0;
+
+  function mpEnsure() {
+    if (mpClient) return Promise.resolve(mpClient);
+    if (mpLoading) return Promise.resolve(null);
+    mpLoading = true;
+    var CDN = [
+      'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm',
+      'https://esm.sh/@supabase/supabase-js@2?bundle'
+    ];
+    var idx = 0, p = null;
+    function tryImport() {
+      if (idx >= CDN.length) return Promise.reject(new Error('cdn'));
+      var u = CDN[idx++];
+      try { return import(u).catch(tryImport); }
+      catch (e) { return tryImport(); }
+    }
+    try { p = tryImport(); }
+    catch (e) { mpLoading = false; return Promise.resolve(null); }
+    return p.then(function (mod) {
+      mpClient = mod.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+      mpLoading = false; return mpClient;
+    }).catch(function () { mpLoading = false; toast('联机组件加载失败'); return null; });
+  }
+  function mpNewCode() {
+    var abc = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', out = '';
+    for (var i = 0; i < 4; i++) out += abc[Math.floor(Math.random() * abc.length)];
+    return out;
+  }
+  function mpStatus(t) { if (el.roomStatus) el.roomStatus.textContent = t; }
+  function mpRender() {
+    if (!el.roomPlayers) return;
+    var me = '<div class="mprow me"><span>' + esc(playerName || '我') + '</span><b>' + (mp && mp.ready ? '已准备' : '未准备') + '</b></div>';
+    var op = (mp && mp.opp)
+      ? '<div class="mprow"><span>' + esc(mp.opp.name || '对手') + '</span><b>' + (mp.oppReady ? '已准备' : '未准备') + '</b></div>'
+      : '<div class="mprow dim"><span>等待对手…</span><b>—</b></div>';
+    el.roomPlayers.innerHTML = me + op;
+  }
+  function mpSend(msg) {
+    if (!mp || !mp.ch) return;
+    try { mp.ch.send({ type: 'broadcast', event: 'msg', payload: msg }); } catch (e) {}
+  }
+  function mpMe() {
+    return { t: 's', id: mp.id, name: mp.name, d: Math.floor(dist), gy: Math.round(GROUND - p.y), alive: state === 'play' ? 1 : 0, sc: Math.floor(score) };
+  }
+  function updateRaceHud() {
+    if (!el.raceHud) return;
+    if (!mp || (state !== 'play' && state !== 'over')) { el.raceHud.classList.add('hidden'); return; }
+    el.raceHud.classList.remove('hidden');
+    var myD = Math.floor(dist / 10), opD = mp.opp ? Math.floor(mp.opp.d / 10) : 0;
+    var mx = Math.max(myD, opD, 1);
+    el.raceMeName.textContent = (playerName || '我');
+    el.raceOppName.textContent = (mp.opp && mp.opp.name) || '对手';
+    el.raceMeDist.textContent = myD + 'm';
+    el.raceOppDist.textContent = mp.opp ? (opD + 'm') : '—';
+    el.raceMeBar.style.width = Math.min(100, myD / mx * 100) + '%';
+    el.raceOppBar.style.width = Math.min(100, opD / mx * 100) + '%';
+  }
+  function mpOpen() {
+    hide(el.menu); hide(el.over); hide(el.board); show(el.room);
+    mpStatus(mp ? ('房间 ' + mp.code) : (ONLINE ? '输入房号，或直接点创建' : '未配置在线服务'));
+    if (mp && el.roomCode) el.roomCode.value = mp.code;
+    mpRender();
+  }
+  function mpClose() { hide(el.room); showMenu(); }
+  function mpLeave() {
+    if (mp) {
+      mpSend({ t: 'bye', id: mp.id });
+      try { if (mp.ch) mp.ch.unsubscribe(); } catch (e) {}
+    }
+    mp = null;
+    if (el.raceHud) el.raceHud.classList.add('hidden');
+    if (el.countdown) el.countdown.classList.add('hidden');
+    mpClose();
+  }
+  function mpJoin(code, host) {
+    code = String(code || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4);
+    if (code.length !== 4) { toast('房号是 4 位字母或数字'); return; }
+    mpEnsure().then(function (client) {
+      if (!client) { mpStatus('联机组件不可用'); return; }
+      if (mp && mp.ch) { try { mp.ch.unsubscribe(); } catch (e) {} }
+      mp = {
+        code: code, id: 'p' + Math.random().toString(36).slice(2, 8), name: playerName || '匿名',
+        host: !!host, ready: false, oppReady: false, opp: null, seed: 0, startAt: 0, result: null, ch: null
+      };
+      hide(el.menu); hide(el.over); hide(el.board); show(el.room);
+      var ch = client.channel('bjmp-' + code, { config: { broadcast: { self: false } } });
+      mp.ch = ch;
+      ch.on('broadcast', { event: 'msg' }, function (env) { try { mpOnMsg(env && env.payload); } catch (e) {} });
+      ch.subscribe(function (st) {
+        if (st === 'SUBSCRIBED') {
+          mpStatus('已连接 · 房间 ' + code);
+          mpSend({ t: 'hi', id: mp.id, name: mp.name, ready: mp.ready });
+        } else if (st === 'CHANNEL_ERROR' || st === 'TIMED_OUT' || st === 'CLOSED') {
+          mpStatus('连接断开，请重试');
+        }
+      });
+      mpStatus('连接中… 房间 ' + code);
+      if (el.roomCode) el.roomCode.value = code;
+      mpRender();
+    });
+  }
+  function mpOnMsg(m) {
+    if (!m || !mp || m.id === mp.id) return;
+    if (m.t === 'hi') {
+      mp.opp = { id: m.id, name: m.name, d: 0, gy: 0, alive: 0, sc: 0, ts: Date.now() };
+      mp.oppReady = !!m.ready;
+      mpSend({ t: 'hi', id: mp.id, name: mp.name, ready: mp.ready });
+      mpRender();
+      return;
+    }
+    if (m.t === 'ready') { mp.oppReady = !!m.ready; mpRender(); maybeStart(); return; }
+    if (m.t === 's') {
+      mp.opp = { id: m.id, name: m.name, d: m.d | 0, gy: m.gy | 0, alive: !!m.alive, sc: m.sc | 0, ts: Date.now() };
+      updateRaceHud();
+      return;
+    }
+    if (m.t === 'st') { mp.seed = m.seed >>> 0; mp.startAt = m.at | 0; mpStatus('准备开始…'); return; }
+    if (m.t === 'bye') { mp.opp = null; mp.oppReady = false; mpStatus('对手离开了'); mpRender(); return; }
+  }
+  function maybeStart() {
+    if (!mp || !mp.host || !mp.ready || !mp.oppReady || mp.startAt) return;
+    var seed = (Math.random() * 0xFFFFFFF) | 0;
+    var at = Date.now() + 3200;
+    mp.seed = seed; mp.startAt = at;
+    mpSend({ t: 'st', seed: seed, at: at });
+    mpStatus('双方就绪，3 秒后开始');
+  }
+  function mpReady() {
+    if (!mp) { toast('先创建或加入房间'); return; }
+    mp.ready = !mp.ready;
+    mpSend({ t: 'ready', id: mp.id, ready: mp.ready, name: mp.name });
+    mpRender();
+    if (mp.ready) { mpStatus('等待对手准备…'); maybeStart(); }
+    else mpStatus('已取消准备');
+  }
+  function drawGhost() {
+    if (!mp || !mp.opp || !mp.opp.alive) return;
+    var gx = PX + (mp.opp.d - dist);
+    if (gx < -80 || gx > W + 80) return;
+    var gy = GROUND - (mp.opp.gy || 0) - PS / 2;
+    ctx.save();
+    ctx.globalAlpha = 0.42;
+    if (whaleImg && whaleImg.complete && whaleImg.naturalWidth) {
+      ctx.drawImage(whaleImg, gx - 29, gy - 21, 58, 42);
+    } else {
+      ctx.fillStyle = C.whale;
+      rr(gx - PS / 2, gy - PS / 2, PS, PS, 12); ctx.fill();
+    }
+    ctx.globalAlpha = 0.9;
+    ctx.font = '700 11px -apple-system,"PingFang SC",sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+    ctx.fillStyle = 'rgba(255,255,255,.8)';
+    ctx.fillText(mp.opp.name || '对手', gx, gy - 26);
+    ctx.restore();
+  }
+
   // ================= 按钮事件 =================
   function bind(id, fn) {
     var node = $(id);
@@ -1860,10 +2129,18 @@
     node.addEventListener('click', function (ev) { if (ev && ev.stopPropagation) ev.stopPropagation(); fn(); });
   }
   bind('btnStart', function () { start(); });
-  bind('btnRetry', function () { start(); });
+  bind('btnRetry', function () {
+    if (mp) { mpLeave(); toast('已退出房间'); }
+    start();
+  });
   bind('btnShare', function () { shareScore(); });
   bind('btnBoard', function () { showBoard('over'); });
   bind('btnMenuBoard', function () { showBoard('menu'); });
+  bind('btnMenuMp', function () { mpOpen(); });
+  bind('btnCreateRoom', function () { mpJoin(mpNewCode(), true); });
+  bind('btnJoinRoom', function () { mpJoin(el.roomCode ? el.roomCode.value : '', false); });
+  bind('btnReady', function () { mpReady(); });
+  bind('btnLeaveRoom', function () { mpLeave(); });
   bind('btnBoardClose', function () { hideBoard(); });
   bind('btnMenuSound', function () {
     soundOn = !soundOn;
@@ -1904,7 +2181,12 @@
       if (k === 'inv') inv = 6;
       syncHud(true);
     },
-    debugAbsorb: tryAbsorb
+    debugAbsorb: tryAbsorb,
+    mp: {
+      open: mpOpen, join: mpJoin, msg: mpOnMsg, ready: mpReady, leave: mpLeave,
+      status: mpStatus, get: function () { return mp; }, set: function (v) { mp = v; },
+      ghost: drawGhost, hud: updateRaceHud
+    }
   };
 
   showMenu();
