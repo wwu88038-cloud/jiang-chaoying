@@ -33,7 +33,8 @@
     background:radial-gradient(120% 90% at 50% 0%, rgba(12,16,32,.28), rgba(6,8,16,.62));
     z-index:5}
   .veil.hidden{display:none}
-  .panel{width:min(420px,100%);border-radius:26px;padding:22px;
+  .panel{width:min(420px,100%);max-height:calc(100% - 20px);overflow:auto;-webkit-overflow-scrolling:touch;
+    border-radius:26px;padding:22px;
     background:var(--glass);border:1px solid var(--glass-brd);
     backdrop-filter:blur(22px) saturate(150%);-webkit-backdrop-filter:blur(22px) saturate(150%);
     box-shadow:0 28px 80px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.28);
@@ -57,6 +58,14 @@
     box-shadow:0 14px 34px rgba(255,122,89,.35), inset 0 1px 0 rgba(255,255,255,.6)}
   .btn-ghost{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);font-weight:600}
   .btn-sm{padding:12px 14px;font-size:13px;border-radius:14px}
+  .hero-row{display:flex;align-items:center;gap:14px;margin-bottom:4px}
+  .hero-art{width:108px;height:78px;flex:none;animation:bob 2.8s ease-in-out infinite}
+  .hero-art svg{width:100%;height:100%;display:block;
+    filter:drop-shadow(0 12px 22px rgba(77,107,254,.4))}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+  .hero-copy h1{margin:2px 0 4px;font-size:27px}
+  .hero-copy .kicker{font-size:10px}
+  .hero-copy .sub{font-size:12.5px;line-height:1.55}
   .namerow{display:flex;align-items:center;gap:10px;margin-top:16px;padding:8px 8px 8px 14px;
     border-radius:16px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14)}
   .namerow .nlbl{font-size:12.5px;color:var(--dim);flex:none}
@@ -177,9 +186,14 @@
 
   <div id="menu" class="veil">
     <div class="panel">
-      <div class="kicker">Block Jump · v4.1</div>
-      <h1>方块跳跃</h1>
-      <p class="sub">你是 DeepSeek 小肥鱼：点一下跳跃，空中再点二段跳。<br>踩住小怪弹起来；BOSS 关保持距离，躲子弹、捡「反击」轰它。</p>
+      <div class="hero-row">
+        <div class="hero-art" id="heroArt"></div>
+        <div class="hero-copy">
+          <div class="kicker">BLOCK JUMP · v4.2</div>
+          <h1>方块跳跃</h1>
+          <p class="sub">你是 DeepSeek 小肥鱼：点一下跳跃，空中再点二段跳。<br>踩住小怪弹起来；BOSS 关保持距离，躲子弹、捡「反击」轰它。</p>
+        </div>
+      </div>
       <div class="chips">
         <span class="chip"><span class="dot" style="color:#ff6b8b"></span><b>3 种小怪</b> 可踩</span>
         <span class="chip"><span class="dot" style="color:#ffd166"></span><b>5 种道具</b> 无敌/磁铁/双倍/护盾/缓速</span>
@@ -245,6 +259,39 @@
     SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdtYnhham1ub292cXNwc2lmb2lqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM5NjIwMDYsImV4cCI6MjA3OTUzODAwNn0.0Y8fS4oOsGnr_i_dsdQOUnE1iFKRSyVHk3r8p-tRvNo'
   };
   var ONLINE = !!(CONFIG.SUPABASE_URL && CONFIG.SUPABASE_ANON_KEY);
+
+  // ================= 卡通形象：DeepSeek 小肥鱼 =================
+  var WHALE_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 100">' +
+    '<defs>' +
+    '<linearGradient id="wg" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0" stop-color="#a8c8ff"/><stop offset=".55" stop-color="#5d82ff"/><stop offset="1" stop-color="#3b57e6"/>' +
+    '</linearGradient>' +
+    '<linearGradient id="wf" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0" stop-color="#4a6cf0"/><stop offset="1" stop-color="#2a44c4"/>' +
+    '</linearGradient>' +
+    '</defs>' +
+    '<path d="M32 50 C20 42 12 34 10 25 C19 29 27 37 34 44 Z" fill="url(#wf)" stroke="#17265f" stroke-width="3.4" stroke-linejoin="round"/>' +
+    '<path d="M32 55 C20 63 12 71 10 80 C19 76 27 68 34 61 Z" fill="url(#wf)" stroke="#17265f" stroke-width="3.4" stroke-linejoin="round"/>' +
+    '<path d="M30 52 C30 30 60 17 90 19 C116 21 131 36 131 53 C131 71 106 83 78 81 C50 79 30 69 30 52 Z" fill="url(#wg)" stroke="#17265f" stroke-width="3.6"/>' +
+    '<path d="M42 67 C58 79 94 83 118 68 C111 81 88 89 66 85 C52 82 45 76 42 67 Z" fill="#eef4ff" opacity=".92"/>' +
+    '<path d="M64 74 C59 84 61 92 70 93 C75 86 75 79 71 73 Z" fill="url(#wf)" stroke="#17265f" stroke-width="3.2" stroke-linejoin="round"/>' +
+    '<circle cx="101" cy="46" r="6.4" fill="#13235e"/>' +
+    '<circle cx="103.2" cy="43.4" r="2.1" fill="#ffffff"/>' +
+    '<path d="M93 35.5 Q100 32.5 108 37" stroke="#17265f" stroke-width="3.2" fill="none" stroke-linecap="round"/>' +
+    '<path d="M97 58 Q105 64 113 57" stroke="#17265f" stroke-width="3.2" fill="none" stroke-linecap="round"/>' +
+    '<ellipse cx="111" cy="55" rx="5.2" ry="3" fill="#ff9db8" opacity=".5"/>' +
+    '<path d="M87 21 C85 13 81 9 76 7" stroke="#bfe9ff" stroke-width="3.2" fill="none" stroke-linecap="round"/>' +
+    '<circle cx="74" cy="5.5" r="2.6" fill="#bfe9ff"/>' +
+    '<circle cx="67" cy="10" r="2" fill="#bfe9ff"/>' +
+    '<circle cx="81" cy="3.4" r="1.6" fill="#bfe9ff"/>' +
+    '</svg>';
+  var whaleImg = null;
+  try {
+    if (typeof Image !== 'undefined') {
+      whaleImg = new Image();
+      whaleImg.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(WHALE_SVG);
+    }
+  } catch (e) { whaleImg = null; }
 
   // ================= 画面尺寸 =================
   var W = 390, H = 640, GROUND = 520, PX = 92, PS = 42;
@@ -479,6 +526,9 @@
     el.nameInput.addEventListener('blur', function () { applyName(el.nameInput.value); });
     el.nameInput.addEventListener('change', function () { applyName(el.nameInput.value); });
   }
+
+  var heroArtEl = $('heroArt');
+  if (heroArtEl) heroArtEl.innerHTML = WHALE_SVG;
 
   function showMenu() {
     state = 'menu';
@@ -1548,6 +1598,17 @@
       ctx.fillStyle = C.glow;
       rr(cx - PS / 2 - 5, cy - PS / 2 - 5, PS + 10, PS + 10, 17); ctx.fill();
       ctx.restore();
+    }
+    if (whaleImg && whaleImg.complete && whaleImg.naturalWidth) {
+      ctx.save();
+      ctx.translate(cx, cy);
+      if (!p.onGround) ctx.rotate(p.rot * 0.6);
+      var sqI = p.squash;
+      ctx.scale(1 / sqI, sqI);
+      var wI = 60, hI = 44;
+      ctx.drawImage(whaleImg, -wI / 2, -hI / 2, wI, hI);
+      ctx.restore();
+      return;
     }
     ctx.save();
     ctx.translate(cx, cy);
