@@ -189,9 +189,9 @@
       <div class="hero-row">
         <div class="hero-art" id="heroArt"></div>
         <div class="hero-copy">
-          <div class="kicker">BLOCK JUMP · v4.2</div>
+          <div class="kicker">BLOCK JUMP · v4.4</div>
           <h1>方块跳跃</h1>
-          <p class="sub">你是 DeepSeek 小肥鱼：点一下跳跃，空中再点二段跳。<br>踩住小怪弹起来；BOSS 关保持距离，躲子弹、捡「反击」轰它。</p>
+          <p class="sub">你是粉色小肥鱼：点一下跳跃，空中再点二段跳（镜头已拉远）。<br>踩住小怪弹起来；BOSS 关保持距离，躲子弹、捡「反击」轰它。</p>
         </div>
       </div>
       <div class="chips">
@@ -264,26 +264,33 @@
   var WHALE_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 100">' +
     '<defs>' +
     '<linearGradient id="wg" x1="0" y1="0" x2="0" y2="1">' +
-      '<stop offset="0" stop-color="#a8c8ff"/><stop offset=".55" stop-color="#5d82ff"/><stop offset="1" stop-color="#3b57e6"/>' +
+      '<stop offset="0" stop-color="#ffd3ea"/><stop offset=".5" stop-color="#ff8dc0"/><stop offset="1" stop-color="#f2569b"/>' +
     '</linearGradient>' +
     '<linearGradient id="wf" x1="0" y1="0" x2="0" y2="1">' +
-      '<stop offset="0" stop-color="#4a6cf0"/><stop offset="1" stop-color="#2a44c4"/>' +
+      '<stop offset="0" stop-color="#ff7fb8"/><stop offset="1" stop-color="#e03f86"/>' +
     '</linearGradient>' +
     '</defs>' +
-    '<path d="M32 50 C20 42 12 34 10 25 C19 29 27 37 34 44 Z" fill="url(#wf)" stroke="#17265f" stroke-width="3.4" stroke-linejoin="round"/>' +
-    '<path d="M32 55 C20 63 12 71 10 80 C19 76 27 68 34 61 Z" fill="url(#wf)" stroke="#17265f" stroke-width="3.4" stroke-linejoin="round"/>' +
-    '<path d="M30 52 C30 30 60 17 90 19 C116 21 131 36 131 53 C131 71 106 83 78 81 C50 79 30 69 30 52 Z" fill="url(#wg)" stroke="#17265f" stroke-width="3.6"/>' +
-    '<path d="M42 67 C58 79 94 83 118 68 C111 81 88 89 66 85 C52 82 45 76 42 67 Z" fill="#eef4ff" opacity=".92"/>' +
-    '<path d="M64 74 C59 84 61 92 70 93 C75 86 75 79 71 73 Z" fill="url(#wf)" stroke="#17265f" stroke-width="3.2" stroke-linejoin="round"/>' +
-    '<circle cx="101" cy="46" r="6.4" fill="#13235e"/>' +
-    '<circle cx="103.2" cy="43.4" r="2.1" fill="#ffffff"/>' +
-    '<path d="M93 35.5 Q100 32.5 108 37" stroke="#17265f" stroke-width="3.2" fill="none" stroke-linecap="round"/>' +
-    '<path d="M97 58 Q105 64 113 57" stroke="#17265f" stroke-width="3.2" fill="none" stroke-linecap="round"/>' +
-    '<ellipse cx="111" cy="55" rx="5.2" ry="3" fill="#ff9db8" opacity=".5"/>' +
-    '<path d="M87 21 C85 13 81 9 76 7" stroke="#bfe9ff" stroke-width="3.2" fill="none" stroke-linecap="round"/>' +
-    '<circle cx="74" cy="5.5" r="2.6" fill="#bfe9ff"/>' +
-    '<circle cx="67" cy="10" r="2" fill="#bfe9ff"/>' +
-    '<circle cx="81" cy="3.4" r="1.6" fill="#bfe9ff"/>' +
+    '<path d="M32 50 C20 42 12 34 10 25 C19 29 27 37 34 44 Z" fill="url(#wf)" stroke="#7a2450" stroke-width="3.4" stroke-linejoin="round"/>' +
+    '<path d="M32 55 C20 63 12 71 10 80 C19 76 27 68 34 61 Z" fill="url(#wf)" stroke="#7a2450" stroke-width="3.4" stroke-linejoin="round"/>' +
+    '<path d="M30 52 C30 30 60 17 90 19 C116 21 131 36 131 53 C131 71 106 83 78 81 C50 79 30 69 30 52 Z" fill="url(#wg)" stroke="#7a2450" stroke-width="3.6"/>' +
+    '<path d="M42 67 C58 79 94 83 118 68 C111 81 88 89 66 85 C52 82 45 76 42 67 Z" fill="#fff4fa" opacity=".95"/>' +
+    '<path d="M64 74 C59 84 61 92 70 93 C75 86 75 79 71 73 Z" fill="url(#wf)" stroke="#7a2450" stroke-width="3.2" stroke-linejoin="round"/>' +
+    '<circle cx="101" cy="46" r="6.6" fill="#5c1036"/>' +
+    '<circle cx="103.2" cy="43.4" r="2.2" fill="#ffffff"/>' +
+    '<path d="M106 39.5 L110 36.5" stroke="#7a2450" stroke-width="2.6" stroke-linecap="round"/>' +
+    '<path d="M108.5 42.5 L113.5 41" stroke="#7a2450" stroke-width="2.6" stroke-linecap="round"/>' +
+    '<path d="M93 36 Q100 33 107 37" stroke="#7a2450" stroke-width="3" fill="none" stroke-linecap="round"/>' +
+    '<path d="M97 58 Q105 64 113 57" stroke="#7a2450" stroke-width="3.2" fill="none" stroke-linecap="round"/>' +
+    '<ellipse cx="111" cy="56" rx="5.4" ry="3.1" fill="#ff6ba6" opacity=".45"/>' +
+    '<path d="M88 18 C86 11 82 7 77 5" stroke="#ffd6ea" stroke-width="3" fill="none" stroke-linecap="round"/>' +
+    '<circle cx="75" cy="3.8" r="2.6" fill="#ffd6ea"/>' +
+    '<circle cx="68" cy="8.4" r="2" fill="#ffd6ea"/>' +
+    '<circle cx="82" cy="1.8" r="1.5" fill="#ffd6ea"/>' +
+    '<g stroke="#a32763" stroke-width="2.6" stroke-linejoin="round">' +
+      '<path d="M92 14 C86 8 84 2 90 1 C96 0 99 7 96 13 Z" fill="#ff5fa2"/>' +
+      '<path d="M98 13 C104 7 110 4 111 9 C112 14 104 16 99 15 Z" fill="#ff5fa2"/>' +
+    '</g>' +
+    '<circle cx="96" cy="13" r="3" fill="#ff8dc0" stroke="#a32763" stroke-width="2.4"/>' +
     '</svg>';
   var whaleImg = null;
   try {
@@ -294,7 +301,7 @@
   } catch (e) { whaleImg = null; }
 
   // ================= 画面尺寸 =================
-  var W = 390, H = 640, GROUND = 520, PX = 92, PS = 42;
+  var W = 527, H = 865, GROUND = 702, PX = 92, PS = 42;
   var GRAV = 3300, JUMP = -1160, JUMP2 = -1040, CUT = -500, STOMP_BOUNCE = -880;
   var BOSS_FIRST = 700, BOSS_GAP = 1700;
 
@@ -327,7 +334,7 @@
     star: '#ffd166', magnet: '#50d5e8', dbl: '#f472b6',
     white: '#ffffff',
     bot: '#f2f6ff', botL: '#ffffff', botM: '#c8d4ee', botD: '#8f9ec2', botLine: '#131a33',
-    whale: '#5d82ff', whaleD: '#2f4fd6', whaleL: '#9cbbff', whaleBelly: 'rgba(255,255,255,.42)', spout: '#bfe9ff',
+    whale: '#ff8dc0', whaleD: '#e03f86', whaleL: '#ffd3ea', whaleBelly: 'rgba(255,255,255,.5)', spout: '#ffd6ea',
     visor: '#0b1230', glow: '#7ee7ff', glow2: '#b8f6ff',
     shield: '#7ee7ff', slow: '#c084fc'
   };
@@ -460,7 +467,7 @@
   var p = { y: GROUND, vy: 0, jumps: 0, rot: 0, squash: 1, onGround: true, spin: 0 };
   var thisRank = 0, highlightScore = -1, boardTab = 0, boardFrom = 'over';
 
-  for (var si = 0; si < 70; si++) stars.push({ x: (si * 57.3) % W, y: (si * 37.7) % 300, r: 0.7 + (si % 3) * 0.55, ph: si * 0.9 });
+  for (var si = 0; si < 84; si++) stars.push({ x: (si * 57.3) % W, y: (si * 37.7) % 430, r: 0.7 + (si % 3) * 0.55, ph: si * 0.9 });
 
   // ================= DOM =================
   var el = {
@@ -715,8 +722,8 @@
   }
   function spawnBoss() {
     boss = {
-      x: camX + W - 120, baseX: camX + W - 120,
-      y: GROUND - 210, baseY: GROUND - 210,
+      x: camX + W - 72, baseX: camX + W - 72,
+      y: GROUND - 225, baseY: GROUND - 225,
       w: 70, h: 84, hp: 3, maxHp: 3,
       t: 0, attackT: 1.8, counterT: 1.2, hitFlash: 0, dying: 0
     };
@@ -735,7 +742,7 @@
       projs.push({
         x: B.x - 12 + i * 30,
         y: GROUND - 30,
-        w: 18, h: 11, vx: -225 - Math.random() * 35, t: 0
+        w: 18, h: 11, vx: -265 - Math.random() * 40, t: 0
       });
     }
   }
@@ -936,7 +943,7 @@
         }
       } else {
         // 悬浮呼吸
-        B.x = B.baseX + Math.sin(B.t * 1.15) * 24;
+        B.x = B.baseX + Math.sin(B.t * 1.15) * 16;
         B.y = B.baseY + Math.sin(B.t * 1.7) * 30;
         // 攻击
         B.attackT -= dt;
@@ -949,11 +956,11 @@
         // 刷反击弹
         B.counterT -= dt;
         if (B.counterT <= 0) {
-          B.counterT = 1.9;
+          B.counterT = 1.7;
           var hasCounter = false;
           for (var pc = 0; pc < pickups.length; pc++) if (pickups[pc].kind === 'counter') hasCounter = true;
           if (!hasCounter) {
-            pickups.push({ x: camX + W + 40, y: GROUND - 34, kind: 'counter', t: 0, got: false, vx: -165, ground: true });
+            pickups.push({ x: camX + W + 40, y: GROUND - 34, kind: 'counter', t: 0, got: false, vx: -215, ground: true });
           }
         }
       }
@@ -1159,7 +1166,7 @@
     ctx.globalAlpha = 1;
 
     // 发光星体
-    var cx = 300 - Math.cos((camX * 0.0004)) * 18, cy = 104;
+    var cx = W * 0.78 - Math.cos((camX * 0.0004)) * 22, cy = 132;
     var glow = ctx.createRadialGradient(cx, cy, 6, cx, cy, 90);
     glow.addColorStop(0, 'rgba(255,224,180,.55)');
     glow.addColorStop(1, 'rgba(255,224,180,0)');
